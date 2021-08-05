@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Csharp_3d_viewer
 {
@@ -17,6 +18,30 @@ namespace Csharp_3d_viewer
         private readonly VisualizerData visualizerData;
         private List<Vertex> pointCloud = null;
 
+        struct BoneMocapData
+        {
+            public BoneMocapData(double timestamp, string name, double x, double y, double z, double w, double xLoc, double yLoc, double zLoc)
+            {
+                Timestamp = timestamp;
+                Name = name;
+                X = x;
+                Y = y;
+                Z = z;
+                W = w;
+                XLoc = xLoc;
+                YLoc = yLoc;
+                ZLoc = zLoc;
+            }
+            public double Timestamp { get; }
+            public string Name { get; }
+            public double X { get; }
+            public double Y { get; }
+            public double Z { get; }
+            public double W { get; }
+            public double XLoc { get; }
+            public double YLoc { get; }
+            public double ZLoc { get; }
+        }
         public Renderer(VisualizerData visualizerData)
         {
             this.visualizerData = visualizerData;
@@ -106,6 +131,8 @@ namespace Csharp_3d_viewer
                 PointCloud.ComputePointCloud(lastFrame.Capture.Depth, ref pointCloud);
                 PointCloudRenderer.Render(pointCloud, new Vector4(1, 1, 1, 1));
 
+                List<BoneMocapData> boneData = new List<BoneMocapData>();
+
                 for (uint i = 0; i < lastFrame.NumberOfBodies; ++i)
                 {
                     var skeleton = lastFrame.GetBodySkeleton(i);
@@ -119,7 +146,10 @@ namespace Csharp_3d_viewer
                         // Render the joint as a sphere.
                         const float radius = 0.024f;
                         SphereRenderer.Render(joint.Position / 1000, radius, bodyColor);
-                        Program.outputFile.WriteLine(lastFrame.DeviceTimestamp.TotalMilliseconds.ToString() + "  "+Enum.GetName(typeof(JointId), jointId) + "  :  " + joint.Position + "  :  "+joint.Quaternion);
+
+                        boneData.Add(new BoneMocapData(lastFrame.DeviceTimestamp.TotalMilliseconds, Enum.GetName(typeof(JointId), jointId), joint.Quaternion.X, joint.Quaternion.Y, joint.Quaternion.Z, joint.Quaternion.W, joint.Position.X, joint.Position.Y, joint.Position.Z));
+                        Program.outputFile.WriteLine(JsonSerializer.Serialize(boneData));
+                            //lastFrame.DeviceTimestamp.TotalMilliseconds.ToString() + "  "+Enum.GetName(typeof(JointId), jointId) + "  :  " + joint.Position + "  :  "+joint.Quaternion);
 
                         if (JointConnections.JointParent.TryGetValue((JointId)jointId, out JointId parentId))
                         {

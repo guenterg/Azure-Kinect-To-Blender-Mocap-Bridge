@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.Azure.Kinect.Sensor" Version="1.4.1" />
     <PackageReference Include="OpenGL.Net" Version="0.8.4" />
     <PackageReference Include="OpenGL.Net.CoreUI" Version="0.8.4" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
