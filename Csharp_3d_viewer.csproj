@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Kinect.BodyTracking.Dependencies" Version="0.9.1" />
+    <PackageReference Include="Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN" Version="0.9.1" />
+    <PackageReference Include="Microsoft.Azure.Kinect.Sensor" Version="1.4.1" />
+    <PackageReference Include="OpenGL.Net" Version="0.8.4" />
+    <PackageReference Include="OpenGL.Net.CoreUI" Version="0.8.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\grant\.nuget\packages\microsoft.azure.kinect.bodytracking\1.0.1\build\netstandard2.0\..\..\lib\native\amd64\release\onnxruntime.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Azure.Kinect.BodyTracking">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Azure Kinect Body Tracking SDK\sdk\netstandard2.0\release\Microsoft.Azure.Kinect.BodyTracking.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
