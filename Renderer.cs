@@ -20,7 +20,7 @@ namespace Csharp_3d_viewer
 
         struct BoneMocapData
         {
-            public BoneMocapData(double timestamp, string name, double x, double y, double z, double w, double xLoc, double yLoc, double zLoc)
+            public BoneMocapData(double timestamp, string name, double x, double y, double z, double w, double xLoc, double yLoc, double zLoc, double pW, double pX, double pY, double pZ)
             {
                 Timestamp = timestamp;
                 Name = name;
@@ -31,6 +31,10 @@ namespace Csharp_3d_viewer
                 XLoc = xLoc;
                 YLoc = yLoc;
                 ZLoc = zLoc;
+                PW = pW;
+                PX = pX;
+                PY = pY;
+                PZ = pZ;
             }
             public double Timestamp { get; }
             public string Name { get; }
@@ -41,6 +45,10 @@ namespace Csharp_3d_viewer
             public double XLoc { get; }
             public double YLoc { get; }
             public double ZLoc { get; }
+            public double PW { get; }
+            public double PX { get; }
+            public double PY { get; }
+            public double PZ { get; }
         }
         public Renderer(VisualizerData visualizerData)
         {
@@ -131,8 +139,6 @@ namespace Csharp_3d_viewer
                 PointCloud.ComputePointCloud(lastFrame.Capture.Depth, ref pointCloud);
                 PointCloudRenderer.Render(pointCloud, new Vector4(1, 1, 1, 1));
 
-                List<BoneMocapData> boneData = new List<BoneMocapData>();
-
                 for (uint i = 0; i < lastFrame.NumberOfBodies; ++i)
                 {
                     var skeleton = lastFrame.GetBodySkeleton(i);
@@ -146,16 +152,16 @@ namespace Csharp_3d_viewer
                         // Render the joint as a sphere.
                         const float radius = 0.024f;
                         SphereRenderer.Render(joint.Position / 1000, radius, bodyColor);
-
-                        boneData.Add(new BoneMocapData(lastFrame.DeviceTimestamp.TotalMilliseconds, Enum.GetName(typeof(JointId), jointId), joint.Quaternion.X, joint.Quaternion.Y, joint.Quaternion.Z, joint.Quaternion.W, joint.Position.X, joint.Position.Y, joint.Position.Z));
-                        Program.outputFile.WriteLine(JsonSerializer.Serialize(boneData));
-                            //lastFrame.DeviceTimestamp.TotalMilliseconds.ToString() + "  "+Enum.GetName(typeof(JointId), jointId) + "  :  " + joint.Position + "  :  "+joint.Quaternion);
-
+                        Quaternion parentQuat = new Quaternion();
                         if (JointConnections.JointParent.TryGetValue((JointId)jointId, out JointId parentId))
                         {
-                            // Render a bone connecting this joint and its parent as a cylinder.
+                            parentQuat = skeleton.GetJoint(parentId).Quaternion;
                             CylinderRenderer.Render(joint.Position / 1000, skeleton.GetJoint((int)parentId).Position / 1000, bodyColor);
+                            // Render a bone connecting this joint and its parent as a cylinder.
                         }
+
+                        Program.outputFile.WriteLine(JsonSerializer.Serialize(new BoneMocapData(lastFrame.DeviceTimestamp.TotalMilliseconds, Enum.GetName(typeof(JointId), jointId), joint.Quaternion.X, joint.Quaternion.Y, joint.Quaternion.Z, joint.Quaternion.W, joint.Position.X, joint.Position.Y, joint.Position.Z, parentQuat.W, parentQuat.X, parentQuat.Y,parentQuat.Z)));
+
                     }
                 }
             }
