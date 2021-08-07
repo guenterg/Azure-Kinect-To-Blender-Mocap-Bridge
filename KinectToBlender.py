@@ -57,21 +57,27 @@ class ReadLocationsFromFile(bpy.types.Operator,bpy_extras.io_utils.ImportHelper)
         inputfilepath :str = self.filepath
         print(inputfilepath+" opening")
         scene = context.scene
-        armature:Armature = scene.objects['armature']
+        armature = scene.objects['armature']
         armature.select_set(True)
-        bpy.ops.object.mode_set(mode = 'POSE')
+        #armature = bpy.context.object
+
+        bpy.ops.object.mode_set(mode = 'EDIT')
+        scale = 1/500
         file = open(inputfilepath)
         previous_quaternion = [1,0,0,0]
         i = 0
         while i < 32:
                 bonejsonline:str = file.readline()
                 bone = json.loads(bonejsonline)
-           # try:
-                hbone : PoseBone = armature.pose.bones[bonedict[bone['Name']]]
+                hbone = armature.data.edit_bones[bonedict[bone['Name']]]
+                hbone.head  = [float(bone['XLoc']) ,float(bone['YLoc']),float(bone['ZLoc'])]  
+
+
+
                 #hbone.rotation_mode = 'AXIS_ANGLE'
                 #hbone.rotation_axis_angle = [float(bone['W']),float(bone['X']),float(bone['Y']),float(bone['Z'])]
-                hbone.rotation_mode = 'QUATERNION'
-                hbone.rotation_quaternion = [float(bone['W']),float(bone['X']),float(bone['Y']),float(bone['Z'])] #rotation is global while blender rotation is local. Requires transformation.
+                #hbone.rotation_mode = 'QUATERNION'
+                #hbone.rotation_quaternion = [float(bone['W']),float(bone['X']),float(bone['Y']),float(bone['Z'])] #rotation is global while blender rotation is local. Requires transformation.
                 #if bone['Name'] == 'HipRight': # or 'KneeRight' or 'AnkleRight' or 'FootRight'): #right leg coordinate space has inverted x and y 
                  #   euler_rot :mathutils.Euler = mathutils.Quaternion(hbone.rotation_quaternion).to_euler('XYZ')
                  #   euler_rot.z = euler_rot.z - 180
@@ -79,15 +85,15 @@ class ReadLocationsFromFile(bpy.types.Operator,bpy_extras.io_utils.ImportHelper)
                  #   hbone.rotation_quaternion = euler_rot.to_quaternion()
                  #   hbone.rotation_quaternion = [-float(bone['W']),float(bone['X']),float(bone['Y']),-float(bone['Z'])]
                     #hbone.rotation_quaternion = mathutils.Quaternion(hbone.rotation_quaternion).inverted() #rotation is global while blender rotation is local. Requires transformation.
-                parent_quaternion = [float(bone['PW']),float(bone['PX']),float(bone['PY']),float(bone['PZ'])]
+                #parent_quaternion = [float(bone['PW']),float(bone['PX']),float(bone['PY']),float(bone['PZ'])]
 
-                if bone['Name'] != 'Pelvis':
-                    inverted = mathutils.Quaternion(parent_quaternion).inverted()
-                    hbone.rotation_quaternion = hbone.rotation_quaternion @ inverted #transform from global to local space by multiplying by inverse of parent transform
+                #if bone['Name'] != 'Pelvis':
+                #    inverted = mathutils.Quaternion(parent_quaternion).inverted()
+                #    hbone.rotation_quaternion = hbone.rotation_quaternion @ inverted #transform from global to local space by multiplying by inverse of parent transform
                    
                    # hbone.rotation_axis_angle = 
                     
-                    print(bone['Name'] + hbone.rotation_quaternion.__str__() +"hip inverted" + mathutils.Quaternion(hbone.rotation_quaternion).inverted().__str__() + " "+ inverted.__str__())
+                #    print(bone['Name'] + hbone.rotation_quaternion.__str__() +"hip inverted" + mathutils.Quaternion(hbone.rotation_quaternion).inverted().__str__() + " "+ inverted.__str__())
                         #rot_invert:mathutils.Quaternion = hbone.rotation_quaternion@ mathutils.Quaternion(hbone.rotation_quaternion).inverted()
                      #   hbone.rotation_quaternion = [float(bone['W']),float(bone['X']),float(bone['Y']),float(bone['Z'])]
                         #hbone.rotation_quaternion = hbone.rotation_quaternion @ inverted
