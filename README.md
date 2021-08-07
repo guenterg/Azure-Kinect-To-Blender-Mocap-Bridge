@@ -2,7 +2,7 @@
 
 ## Introduction
 
-C# code build upon C# sample program provided in https://github.com/microsoft/Azure-Kinect-Samples
+C# code built upon C# sample program (csharp_3d_viewer) provided in https://github.com/microsoft/Azure-Kinect-Samples
 This repository contains funtionality for capturing and recording data from the azure kinect and using it to animate an armature in blender. 
 Eventual functionality will include both recorded and live systems.
 
